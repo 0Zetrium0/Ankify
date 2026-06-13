@@ -1,5 +1,5 @@
 __author__="z3tr1um"
-__version__="1.0"
+__version__="1.1"
 
 import click
 import requests
@@ -21,7 +21,7 @@ BANNER = r"""
 	 / / ___) | |_| |  | | |_| | | | | | |
 	/___|____/ \__|_|  |_|\__,_|_| |_| |_|  
 
-	2026		         ankicard v1.0                                                                                                               
+	2026		          ankify v1.1                                                                                                               
 """
 
 # Options creation
@@ -29,7 +29,7 @@ BANNER = r"""
 @click.option('--api', is_flag=True, help="Try the connection with AnkiConnect.")
 @click.option('--file', type=click.File('r', encoding='utf-8'), help="File containing 'front:back' flashcards. The question must have a question mark.")
 @click.option('--get_decks', is_flag=True, help="Allow you to see your decks.")
-@click.option('--deck', help="Specify the deck where create cards if (use --file).")
+@click.option('--deck', help="Specify the deck to create cards with (use --file).")
 
 def main(api, file, get_decks, deck):
 	console.print(BANNER, style="bold purple")
@@ -58,9 +58,6 @@ def apiConnectionTest(host):
 		return False
 
 def handleCards(file, deck):
-	if deck == None:
-		console.print("[bold red][!] You must specify the deck.[/bold red]")
-		return
 	flashcard_list = handleFile(file)
 	if flashcard_list is False:
 		return
@@ -76,10 +73,10 @@ def handleCards(file, deck):
 def createCards(flashcard, deck):
 	card_number = 0
 	for item in flashcard:
-			payload = {"action":"addNote","version":6,"params":{"note":{"deckName":f"{deck}","modelName": "Basic","fields":{"Front":f"{item['front']}","Back":f"{item['back']}"}}}}
-			json_payload = json.dumps(payload)
-			r = requests.post(HOST, data=json_payload)
-			card_number += 1
+		payload = {"action":"addNote","version":6,"params":{"note":{"deckName":deck,"modelName": "Basic","fields":{"Front":item['front'],"Back":item['back']}}}}
+		json_payload = json.dumps(payload)
+		r = requests.post(HOST, data=json_payload)
+		card_number += 1
 	console.print(Panel(f"[bold green][+] {card_number} cards created in the deck [italic bold green]{deck}[/italic bold green][/bold green]", border_style="green",))
 
 def getDecks():
@@ -107,10 +104,9 @@ def inDeck(deck):
 		return False
 
 def createDeck(deck):
-	payload = {"action":"createDeck","version":6,"params":{"deck":f"{deck}"}}
+	payload = {"action":"createDeck","version":6,"params":{"deck":deck}}
 	json_payload = json.dumps(payload)
 	r = requests.post(HOST, data=json_payload)
-	response = json.loads(r.text)
 
 def handleFile(file):
 	temp_cards = []
@@ -126,7 +122,7 @@ def handleFile(file):
 			flashcard = clean_chunk.split(':', 1)
 			temp_cards.append({'front':flashcard[0],'back':flashcard[1]})
 		else:
-			console.print("[bold red][!] Syntax error in the file. Program stopped. [/bold red]")
+			console.print("[bold red][!] Syntax error in the file. [/bold red]")
 			return False
 
 	yield from temp_cards
