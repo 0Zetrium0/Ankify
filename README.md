@@ -14,10 +14,10 @@ Ankify is a lightweight CLI tool designed to automate the creation of Anki decks
 
 # Steps to install
 
-1. Download the .zip archive or clone the repository : 
+1. Download the .zip archive or clone the repository with git : 
 ```bash
-git clone "<repository_url>"
-cd <repository_directory>
+git clone https://github.com/0Zetrium0/Ankify.git
+cd Ankify
 ```
 2. Create and activate a python environment : 
 ```bash
